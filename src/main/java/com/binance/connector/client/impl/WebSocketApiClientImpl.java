@@ -1,5 +1,7 @@
 package com.binance.connector.client.impl;
 
+import java.io.IOException;
+
 import com.binance.connector.client.WebSocketApiClient;
 import com.binance.connector.client.enums.Category;
 import com.binance.connector.client.enums.DefaultUrls;
@@ -29,11 +31,15 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
     private final SignatureGenerator signatureGenerator;
     private final String apiKey;
     private final String baseUrl;
-    private final WebSocketOpenCallback noopOpenCallback = response -> { };
-    private final WebSocketClosingCallback noopClosingCallback = (code, reason) -> { };
-    private final WebSocketClosedCallback noopClosedCallback = (code, reason) -> { };
-    private final WebSocketFailureCallback noopFailureCallback = (throwable, response) -> { };
-    private WebSocketConnection connection; 
+    private final WebSocketOpenCallback noopOpenCallback = response -> {
+    };
+    private final WebSocketClosingCallback noopClosingCallback = (code, reason) -> {
+    };
+    private final WebSocketClosedCallback noopClosedCallback = (code, reason) -> {
+    };
+    private final WebSocketFailureCallback noopFailureCallback = (throwable, response) -> {
+    };
+    private WebSocketConnection connection;
     private WebSocketApiRequestHandler requestHandler;
 
     public WebSocketApiClientImpl() {
@@ -53,7 +59,7 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
         this.signatureGenerator = signatureGenerator;
         this.baseUrl = baseUrl;
     }
-    
+
     private void checkRequestHandler() {
         if (this.requestHandler == null) {
             throw new BinanceConnectorException("No WebSocket API connection to submit request. Please connect first.");
@@ -66,10 +72,13 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
     }
 
     @Override
-    public void connect(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public void connect(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback,
+            WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback,
+            WebSocketFailureCallback onFailureCallback) {
         Request request = RequestBuilder.buildWebSocketRequest(baseUrl);
 
-        this.connection = new WebSocketConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request, client);
+        this.connection = new WebSocketConnection(onOpenCallback, onMessageCallback, onClosingCallback,
+                onClosedCallback, onFailureCallback, request, client);
         this.requestHandler = new WebSocketApiRequestHandler(this.connection, this.apiKey, this.signatureGenerator);
         this.connection.connect();
     }
@@ -77,7 +86,18 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
     @Override
     public void close() {
         this.connection.close();
-        client.dispatcher().executorService().shutdown();
+        client.dispatcher().cancelAll();
+        // client.dispatcher().executorService().shutdown();
+        client.connectionPool().evictAll();
+        try {
+            if (client.cache() != null) {
+                client.cache().close();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -113,7 +133,8 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
     @Override
     public WebSocketApiUserDataStream userDataStream() {
         checkRequestHandler();
-        return (WebSocketApiUserDataStream) WebSocketApiModuleFactory.build(Category.USER_DATA_STREAM, this.requestHandler);
+        return (WebSocketApiUserDataStream) WebSocketApiModuleFactory.build(Category.USER_DATA_STREAM,
+                this.requestHandler);
     }
 
 }

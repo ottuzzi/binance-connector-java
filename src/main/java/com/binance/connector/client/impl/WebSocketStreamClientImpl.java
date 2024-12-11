@@ -1,5 +1,6 @@
 package com.binance.connector.client.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,8 +29,12 @@ import okhttp3.Request;
 /**
  * <h2>WebSocket Streams</h2>
  * All stream endpoints under the
- * <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams">WebSocket Market Streams</a> and
- * <a href="https://developers.binance.com/docs/binance-spot-api-docs/user-data-stream">User Data Streams</a>
+ * <a href=
+ * "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams">WebSocket
+ * Market Streams</a> and
+ * <a href=
+ * "https://developers.binance.com/docs/binance-spot-api-docs/user-data-stream">User
+ * Data Streams</a>
  * section of the API documentation will be implemented in this class.
  * <br>
  * Response will be returned as callback.
@@ -39,10 +44,14 @@ public class WebSocketStreamClientImpl implements WebSocketStreamClient {
     private static final OkHttpClient client = WebSocketStreamHttpClientSingleton.getHttpClient();
     private final String baseUrl;
     private final Map<Integer, WebSocketConnection> connections = new HashMap<>();
-    private final WebSocketOpenCallback noopOpenCallback = response -> { };
-    private final WebSocketClosingCallback noopClosingCallback = (code, reason) -> { };
-    private final WebSocketClosedCallback noopClosedCallback = (code, reason) -> { };
-    private final WebSocketFailureCallback noopFailureCallback = (throwable, response) -> { };
+    private final WebSocketOpenCallback noopOpenCallback = response -> {
+    };
+    private final WebSocketClosingCallback noopClosingCallback = (code, reason) -> {
+    };
+    private final WebSocketClosedCallback noopClosedCallback = (code, reason) -> {
+    };
+    private final WebSocketFailureCallback noopFailureCallback = (throwable, response) -> {
+    };
 
     public WebSocketStreamClientImpl() {
         this.baseUrl = DefaultUrls.WS_URL;
@@ -53,514 +62,672 @@ public class WebSocketStreamClientImpl implements WebSocketStreamClient {
     }
 
     /**
-     * The Aggregate Trade Streams push trade information that is aggregated for a single taker order.
-     * <br><br>
+     * The Aggregate Trade Streams push trade information that is aggregated for a
+     * single taker order.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@aggTrade
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param symbol Name of the trading pair
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams</a>
      */
     @Override
     public int aggTradeStream(String symbol, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return aggTradeStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return aggTradeStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #aggTradeStream(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #aggTradeStream(String, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int aggTradeStream(String symbol, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int aggTradeStream(String symbol, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@aggTrade", baseUrl, symbol.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@aggTrade", baseUrl, symbol.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * The Trade Streams push raw trade information; each trade has a unique buyer and seller.
-     * <br><br>
+     * The Trade Streams push raw trade information; each trade has a unique buyer
+     * and seller.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@trade
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param symbol Name of the trading pair
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams</a>
      */
     @Override
     public int tradeStream(String symbol, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return tradeStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return tradeStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #tradeStream(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #tradeStream(String, WebSocketMessageCallback)} plus accepts
+     * callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int tradeStream(String symbol, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int tradeStream(String symbol, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@trade", baseUrl, symbol.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@trade", baseUrl, symbol.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * The Kline/Candlestick Stream push updates to the current klines/candlestick every second.
-     * <br><br>
+     * The Kline/Candlestick Stream push updates to the current klines/candlestick
+     * every second.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@kline_&lt;interval&gt;
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
-     * @param symbol Name of the trading pair
+     * @param symbol   Name of the trading pair
      * @param interval Time interval for kline/candlestick
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc</a>
      */
     @Override
     public int klineStream(String symbol, String interval, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return klineStream(symbol.toLowerCase(), interval, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return klineStream(symbol.toLowerCase(), interval, noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #klineStream(String, String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #klineStream(String, String, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param interval Time interval for kline/candlestick
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param interval          Time interval for kline/candlestick
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int klineStream(String symbol, String interval, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int klineStream(String symbol, String interval, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@kline_%s", baseUrl, symbol.toLowerCase(), interval));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@kline_%s", baseUrl, symbol.toLowerCase(), interval));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
      * 24hr rolling window mini-ticker statistics.
-     * These are NOT the statistics of the UTC day, but a 24hr rolling window for the previous 24hrs.
-     * <br><br>
+     * These are NOT the statistics of the UTC day, but a 24hr rolling window for
+     * the previous 24hrs.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@miniTicker
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param symbol Name of the trading pair
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream</a>
      */
     @Override
     public int miniTickerStream(String symbol, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return miniTickerStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return miniTickerStream(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #miniTickerStream(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #miniTickerStream(String, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int miniTickerStream(String symbol, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int miniTickerStream(String symbol, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@miniTicker", baseUrl, symbol.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@miniTicker", baseUrl, symbol.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * 24hr rolling window mini-ticker statistics for all symbols that changed in an array.
-     * These are NOT the statistics of the UTC day, but a 24hr rolling window for the previous 24hrs.
+     * 24hr rolling window mini-ticker statistics for all symbols that changed in an
+     * array.
+     * These are NOT the statistics of the UTC day, but a 24hr rolling window for
+     * the previous 24hrs.
      * Note that only tickers that have changed will be present in the array.
-     * <br><br>
+     * <br>
+     * <br>
      * !miniTicker@arr
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream</a>
      */
     @Override
     public int allMiniTickerStream(WebSocketMessageCallback callback) {
-        return allMiniTickerStream(noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return allMiniTickerStream(noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #allMiniTickerStream(WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #allMiniTickerStream(WebSocketMessageCallback)} plus accepts
+     * callbacks for all major websocket connection events.
      *
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int allMiniTickerStream(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int allMiniTickerStream(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback,
+            WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback,
+            WebSocketFailureCallback onFailureCallback) {
         Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/!miniTicker@arr", baseUrl));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
      * 24hr rolling window ticker statistics for a single symbol.
-     * These are NOT the statistics of the UTC day, but a 24hr rolling window for the previous 24hrs.
-     * <br><br>
+     * These are NOT the statistics of the UTC day, but a 24hr rolling window for
+     * the previous 24hrs.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@ticker
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param symbol Name of the trading pair
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams</a>
      */
     @Override
     public int symbolTicker(String symbol, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return symbolTicker(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return symbolTicker(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #symbolTicker(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #symbolTicker(String, WebSocketMessageCallback)} plus accepts
+     * callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int symbolTicker(String symbol, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int symbolTicker(String symbol, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@ticker", baseUrl, symbol.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@ticker", baseUrl, symbol.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * 24hr rolling window ticker statistics for all symbols that changed in an array.
-     * These are NOT the statistics of the UTC day, but a 24hr rolling window for the previous 24hrs.
+     * 24hr rolling window ticker statistics for all symbols that changed in an
+     * array.
+     * These are NOT the statistics of the UTC day, but a 24hr rolling window for
+     * the previous 24hrs.
      * Note that only tickers that have changed will be present in the array.
-     * <br><br>
+     * <br>
+     * <br>
      * !ticker@arr
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream</a>
      */
     @Override
     public int allTickerStream(WebSocketMessageCallback callback) {
-        return allTickerStream(noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return allTickerStream(noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #allTickerStream(WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #allTickerStream(WebSocketMessageCallback)} plus accepts
+     * callbacks for all major websocket connection events.
      *
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int allTickerStream(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int allTickerStream(WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback,
+            WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback,
+            WebSocketFailureCallback onFailureCallback) {
         Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/!ticker@arr", baseUrl));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * Rolling window ticker statistics for a single symbol, computed over multiple windows.
-     * <br><br>
+     * Rolling window ticker statistics for a single symbol, computed over multiple
+     * windows.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@ticker_&lt;window_size&gt;
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
-     * @param symbol Name of the trading pair
+     * @param symbol     Name of the trading pair
      * @param windowSize Window Sizes: 1h,4h
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams</a>
      */
     public int rollingWindowTicker(String symbol, String windowSize, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
         ParameterChecker.checkParameterType(symbol, String.class, "windowSize");
-        ArrayList<String> allowedWindowSize = new ArrayList<String>() {{
+        ArrayList<String> allowedWindowSize = new ArrayList<String>() {
+            {
                 add("1h");
                 add("4h");
-            }};
+            }
+        };
         if (!allowedWindowSize.contains(windowSize)) {
             throw new BinanceConnectorException(String.format("\"%s\" is not a valid window size.", windowSize));
         }
-        return rollingWindowTicker(symbol.toLowerCase(), windowSize, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return rollingWindowTicker(symbol.toLowerCase(), windowSize, noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #rollingWindowTicker(String, String, WebSocketMessageCallback)} (String, WebSocketCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as
+     * {@link #rollingWindowTicker(String, String, WebSocketMessageCallback)}
+     * (String, WebSocketCallback)} plus accepts callbacks for all major websocket
+     * connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int rollingWindowTicker(String symbol, String windowSize, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int rollingWindowTicker(String symbol, String windowSize, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
         ParameterChecker.checkParameterType(symbol, String.class, "windowSize");
-        ArrayList<String> allowedWindowSize = new ArrayList<String>() {{
+        ArrayList<String> allowedWindowSize = new ArrayList<String>() {
+            {
                 add("1h");
                 add("4h");
-            }};
+            }
+        };
         if (!allowedWindowSize.contains(windowSize)) {
             throw new BinanceConnectorException(String.format("\"%s\" is not a valid window size.", windowSize));
         }
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@ticker_%s", baseUrl, symbol.toLowerCase(), windowSize));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@ticker_%s", baseUrl, symbol.toLowerCase(), windowSize));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * Rolling window ticker statistics for all market symbols, computed over multiple windows.
+     * Rolling window ticker statistics for all market symbols, computed over
+     * multiple windows.
      * Note that only tickers that have changed will be present in the array.
-     * <br><br>
+     * <br>
+     * <br>
      * !ticker_&lt;window-size&gt;@arr
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param windowSize Window Sizes: 1h,4h
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams</a>
      */
     @Override
     public int allRollingWindowTicker(String windowSize, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(windowSize, String.class, "windowSize");
-        ArrayList<String> allowedWindowSize = new ArrayList<String>() {{
+        ArrayList<String> allowedWindowSize = new ArrayList<String>() {
+            {
                 add("1h");
                 add("4h");
-            }};
+            }
+        };
         if (!allowedWindowSize.contains(windowSize.toLowerCase())) {
-            throw new BinanceConnectorException(String.format("\"%s\" is not a valid window size.", windowSize.toLowerCase()));
+            throw new BinanceConnectorException(
+                    String.format("\"%s\" is not a valid window size.", windowSize.toLowerCase()));
         }
-        return allRollingWindowTicker(windowSize.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return allRollingWindowTicker(windowSize.toLowerCase(), noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #allRollingWindowTicker(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #allRollingWindowTicker(String, WebSocketMessageCallback)}
+     * plus accepts callbacks for all major websocket connection events.
      *
-     * @param windowSize Window Sizes: 1h,4h
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param windowSize        Window Sizes: 1h,4h
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int allRollingWindowTicker(String windowSize, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int allRollingWindowTicker(String windowSize, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(windowSize, String.class, "windowSize");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/!ticker_%s@arr", baseUrl, windowSize.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/!ticker_%s@arr", baseUrl, windowSize.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * Pushes any update to the best bid or ask's price or quantity in real-time for a specified symbol.
-     * <br><br>
+     * Pushes any update to the best bid or ask's price or quantity in real-time for
+     * a specified symbol.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@bookTicker
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: Real-time
      *
      * @param symbol Name of the trading pair
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams</a>
      */
     @Override
     public int bookTicker(String symbol, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return bookTicker(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return bookTicker(symbol.toLowerCase(), noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #bookTicker(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #bookTicker(String, WebSocketMessageCallback)} plus accepts
+     * callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int bookTicker(String symbol, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int bookTicker(String symbol, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@bookTicker", baseUrl, symbol.toLowerCase()));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@bookTicker", baseUrl, symbol.toLowerCase()));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
      * Top bids and asks, Valid are 5, 10, or 20.
-     * <br><br>
+     * <br>
+     * <br>
      * &lt;symbol&gt;@depth&lt;levels&gt;@&lt;speed&gt;ms
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: 1000ms or 100ms
      *
      * @param symbol Name of the trading pair
      * @param levels Valid are 5, 10, or 20
      * @param speed  1000ms or 100ms
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams</a>
      */
     @Override
     public int partialDepthStream(String symbol, int levels, int speed, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return partialDepthStream(symbol.toLowerCase(), levels, speed, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return partialDepthStream(symbol.toLowerCase(), levels, speed, noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #partialDepthStream(String, int, int, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as
+     * {@link #partialDepthStream(String, int, int, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param levels Valid are 5, 10, or 20
-     * @param speed  1000ms or 100ms
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param levels            Valid are 5, 10, or 20
+     * @param speed             1000ms or 100ms
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int partialDepthStream(String symbol, int levels, int speed, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int partialDepthStream(String symbol, int levels, int speed, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@depth%s@%sms", baseUrl, symbol.toLowerCase(), levels, speed));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder.buildWebSocketRequest(
+                String.format("%s/ws/%s@depth%s@%sms", baseUrl, symbol.toLowerCase(), levels, speed));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * Order book price and quantity depth updates used to locally manage an order book.
-     * <br><br>
+     * Order book price and quantity depth updates used to locally manage an order
+     * book.
+     * <br>
+     * <br>
      * &lt;symbol&gt;@depth@&lt;speed&gt;ms
-     * <br><br>
+     * <br>
+     * <br>
      * Update Speed: 1000ms or 100ms
      *
      * @param symbol Name of the trading pair
      * @param speed  1000ms or 100ms
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream</a>
      */
     @Override
     public int diffDepthStream(String symbol, int speed, WebSocketMessageCallback callback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        return diffDepthStream(symbol.toLowerCase(), speed, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return diffDepthStream(symbol.toLowerCase(), speed, noopOpenCallback, callback, noopClosingCallback,
+                noopClosedCallback, noopFailureCallback);
     }
 
     /**
-     * Same as {@link #diffDepthStream(String, int, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #diffDepthStream(String, int, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param symbol Name of the trading pair
-     * @param speed  1000ms or 100ms
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param symbol            Name of the trading pair
+     * @param speed             1000ms or 100ms
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int diffDepthStream(String symbol, int speed, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int diffDepthStream(String symbol, int speed, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         ParameterChecker.checkParameterType(symbol, String.class, "symbol");
-        Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s@depth@%sms", baseUrl, symbol.toLowerCase(), speed));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        Request request = RequestBuilder
+                .buildWebSocketRequest(String.format("%s/ws/%s@depth@%sms", baseUrl, symbol.toLowerCase(), speed));
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
      * User Data Streams are accessed at /ws/&lt;listenKey&gt;
      *
      * @param listenKey listen key obtained from this
-     *                  <a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api#user-data-stream-endpoints">endpoint</a>
+     *                  <a href=
+     *                  "https://developers.binance.com/docs/binance-spot-api-docs/rest-api#user-data-stream-endpoints">endpoint</a>
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api#start-user-data-stream-user_stream">
-     * https://developers.binance.com/docs/binance-spot-api-docs/rest-api#start-user-data-stream-user_stream</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/rest-api#start-user-data-stream-user_stream">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/rest-api#start-user-data-stream-user_stream</a>
      */
     @Override
     public int listenUserStream(String listenKey, WebSocketMessageCallback callback) {
-        return listenUserStream(listenKey, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return listenUserStream(listenKey, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #listenUserStream(String, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #listenUserStream(String, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param listenKey listen key obtained from this
-     *                  <a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api#user-data-stream-endpoints">endpoint</a>
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param listenKey         listen key obtained from this
+     *                          <a href=
+     *                          "https://developers.binance.com/docs/binance-spot-api-docs/rest-api#user-data-stream-endpoints">endpoint</a>
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int listenUserStream(String listenKey, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int listenUserStream(String listenKey, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         Request request = RequestBuilder.buildWebSocketRequest(String.format("%s/ws/%s", baseUrl, listenKey));
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
-     * Combined streams are accessed at /stream?streams=&lt;streamName1&gt;/&lt;streamName2&gt;/&lt;streamName3&gt;
+     * Combined streams are accessed at
+     * /stream?streams=&lt;streamName1&gt;/&lt;streamName2&gt;/&lt;streamName3&gt;
      *
      * @param streams ArrayList of stream names to be combined <br>
      * @return int - Connection ID
-     * @see <a href="https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams">
-     * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams</a>
+     * @see <a href=
+     *      "https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams">
+     *      https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams</a>
      */
     @Override
     public int combineStreams(ArrayList<String> streams, WebSocketMessageCallback callback) {
-        return combineStreams(streams, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback, noopFailureCallback);
+        return combineStreams(streams, noopOpenCallback, callback, noopClosingCallback, noopClosedCallback,
+                noopFailureCallback);
     }
 
     /**
-     * Same as {@link #combineStreams(ArrayList, WebSocketMessageCallback)} plus accepts callbacks for all major websocket connection events.
+     * Same as {@link #combineStreams(ArrayList, WebSocketMessageCallback)} plus
+     * accepts callbacks for all major websocket connection events.
      *
-     * @param streams ArrayList of stream names to be combined <br>
-     * @param onOpenCallback Callback for when the websocket connection is opened
+     * @param streams           ArrayList of stream names to be combined <br>
+     * @param onOpenCallback    Callback for when the websocket connection is opened
      * @param onMessageCallback Callback for when a message is received
-     * @param onClosingCallback Callback for when the websocket connection is closing
+     * @param onClosingCallback Callback for when the websocket connection is
+     *                          closing
      * @param onFailureCallback Callback for when an error occurs
      * @return int - Connection ID
      */
     @Override
-    public int combineStreams(ArrayList<String> streams, WebSocketOpenCallback onOpenCallback, WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback, WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
+    public int combineStreams(ArrayList<String> streams, WebSocketOpenCallback onOpenCallback,
+            WebSocketMessageCallback onMessageCallback, WebSocketClosingCallback onClosingCallback,
+            WebSocketClosedCallback onClosedCallback, WebSocketFailureCallback onFailureCallback) {
         String url = UrlBuilder.buildStreamUrl(baseUrl, streams);
         Request request = RequestBuilder.buildWebSocketRequest(url);
-        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request);
+        return createConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback,
+                onFailureCallback, request);
     }
 
     /**
@@ -595,9 +762,20 @@ public class WebSocketStreamClientImpl implements WebSocketStreamClient {
         }
 
         if (connections.isEmpty()) {
-            client.dispatcher().executorService().shutdown();
+            client.dispatcher().cancelAll();
+            // client.dispatcher().executorService().shutdown();
+            client.connectionPool().evictAll();
+            try {
+                if (client.cache() != null) {
+                    client.cache().close();
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             logger.info("All connections are closed!");
         }
+
     }
 
     private int createConnection(
@@ -606,9 +784,9 @@ public class WebSocketStreamClientImpl implements WebSocketStreamClient {
             WebSocketClosingCallback onClosingCallback,
             WebSocketClosedCallback onClosedCallback,
             WebSocketFailureCallback onFailureCallback,
-            Request request
-    ) {
-        WebSocketConnection connection = new WebSocketConnection(onOpenCallback, onMessageCallback, onClosingCallback, onClosedCallback, onFailureCallback, request, client);
+            Request request) {
+        WebSocketConnection connection = new WebSocketConnection(onOpenCallback, onMessageCallback, onClosingCallback,
+                onClosedCallback, onFailureCallback, request, client);
         connection.connect();
         int connectionId = connection.getConnectionId();
         connections.put(connectionId, connection);
