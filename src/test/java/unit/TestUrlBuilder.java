@@ -74,6 +74,7 @@ public class TestUrlBuilder {
      * Tests joinQueryParameters method's behaviour when it's Locale.IT by checking if the Double value is not changed to "." to ",".
      * Also tests if there's no drop of 0s, addition of group separator "," and limitation on decimals number.
      */
+    @SuppressWarnings("deprecation")
     @Test
     public void testJoinQueryParametersWithLocaleIT() {
 

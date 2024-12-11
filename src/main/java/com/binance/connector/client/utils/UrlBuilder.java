@@ -54,6 +54,7 @@ public final class UrlBuilder {
      * @param params The Map containing the query parameters.
      * @return The StringBuilder representation of the joined query parameters.
     */
+    @SuppressWarnings({ "unchecked" })
     public static StringBuilder joinQueryParameters(StringBuilder sb, Map<String, Object> params) {
         if (params != null && !params.isEmpty()) {
             Iterator<String> keys = params.keySet().iterator();
@@ -65,8 +66,7 @@ public final class UrlBuilder {
                 String value;
                 if (params.get(key) instanceof Double) {
                     value = getFormatter().format(params.get(key));
-                } else if (params.get(key) instanceof List) {
-                    List list = (List) params.get(key);
+                } else if (params.get(key) instanceof List list) {
                     value = (String) list.stream().map(Object::toString).collect(Collectors.joining(","));
                 } else {
                     value = params.get(key).toString();
@@ -111,7 +111,7 @@ public final class UrlBuilder {
         try {
             return URLEncoder.encode(s, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(StandardCharsets.UTF_8.name() + " is unsupported", e);
+            throw new IllegalArgumentException(StandardCharsets.UTF_8.name() + " is unsupported", e);
         }
     }
 
