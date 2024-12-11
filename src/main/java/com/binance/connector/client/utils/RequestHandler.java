@@ -31,7 +31,7 @@ public class RequestHandler {
 
     public String sendPublicRequest(String baseUrl, String urlPath, Map<String, Object> parameters, HttpMethod httpMethod, boolean showLimitUsage) {
         String fullUrl = UrlBuilder.buildFullUrl(baseUrl, urlPath, parameters);
-        logger.info("{} {}", httpMethod, fullUrl);
+        logger.debug("{} {}", httpMethod, fullUrl);
 
         return ResponseHandler.handleResponse(RequestBuilder.buildPublicRequest(fullUrl, httpMethod), showLimitUsage, proxy);
     }
@@ -42,7 +42,7 @@ public class RequestHandler {
         }
 
         String fullUrl = UrlBuilder.buildFullUrl(baseUrl, urlPath, parameters);
-        logger.info("{} {}", httpMethod, fullUrl);
+        logger.debug("{} {}", httpMethod, fullUrl);
 
         return ResponseHandler.handleResponse(RequestBuilder.buildApiKeyRequest(fullUrl, httpMethod, apiKey), showLimitUsage, proxy);
     }
@@ -55,12 +55,12 @@ public class RequestHandler {
             throw new BinanceConnectorException("[RequestHandler] Private key/API key cannot be null or empty!");
         }
 
-        parameters = (parameters == null) ? new HashMap<String, Object>() : parameters;
+        parameters = (parameters == null) ? new HashMap<>() : parameters;
         parameters.putIfAbsent("timestamp", UrlBuilder.buildTimestamp());
         parameters.put("signature", this.signatureGenerator.getSignature(UrlBuilder.joinQueryParameters(parameters)));
 
         String fullUrl = UrlBuilder.buildFullUrl(baseUrl, urlPath, parameters);
-        logger.info("{} {}", httpMethod, fullUrl);
+        logger.debug("{} {}", httpMethod, fullUrl);
 
         return ResponseHandler.handleResponse(RequestBuilder.buildApiKeyRequest(fullUrl, httpMethod, apiKey), showLimitUsage, proxy);
     }
