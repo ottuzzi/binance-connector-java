@@ -6,7 +6,7 @@
 
     <groupId>io.github.binance</groupId>
     <artifactId>binance-connector-java</artifactId>
-    <version>3.4.0-brucalipto</version>
+    <version>3.4.1-brucalipto</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>lightweight connector to API</description>
@@ -44,35 +44,6 @@
     </scm>
     <build>
         <plugins>
-            <!-- <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.6.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>9.3</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <?m2e execute onConfiguration,onIncremental?>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin> -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
