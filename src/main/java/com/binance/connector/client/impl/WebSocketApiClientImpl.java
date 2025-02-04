@@ -87,14 +87,12 @@ public class WebSocketApiClientImpl implements WebSocketApiClient {
     public void close() {
         this.connection.close();
         client.dispatcher().cancelAll();
-        // client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();
         try {
             if (client.cache() != null) {
                 client.cache().close();
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
