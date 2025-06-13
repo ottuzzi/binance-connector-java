@@ -47,7 +47,7 @@ public class RequestHandler {
         return ResponseHandler.handleResponse(RequestBuilder.buildApiKeyRequest(fullUrl, httpMethod, apiKey), showLimitUsage, proxy);
     }
 
-    public String sendSignedRequest(final String baseUrl, final String urlPath, Map<String, Object> parameters, final HttpMethod httpMethod, final boolean showLimitUsage) {                          
+    public String sendSignedRequest(final String baseUrl, final String urlPath, Map<String, Object> parameters, final HttpMethod httpMethod, final boolean showLimitUsage) {
         if (signatureGenerator.getClass() == HmacSignatureGenerator.class && (null == apiKey || apiKey.isEmpty())) {
             throw new BinanceConnectorException("[RequestHandler] Secret key/API key cannot be null or empty!");
         }
@@ -60,8 +60,10 @@ public class RequestHandler {
         parameters.put("signature", this.signatureGenerator.getSignature(UrlBuilder.joinQueryParameters(parameters)));
 
         final String fullUrl = UrlBuilder.buildFullUrl(baseUrl, urlPath, parameters);
-        logger.info("{} {}", httpMethod, fullUrl);
-
-        return ResponseHandler.handleResponse(RequestBuilder.buildApiKeyRequest(fullUrl, httpMethod, apiKey), showLimitUsage, proxy);
+        logger.debug("{} {}", httpMethod, fullUrl);
+        final long currentTime = System.currentTimeMillis();
+        final String response = ResponseHandler.handleResponse(RequestBuilder.buildApiKeyRequest(fullUrl, httpMethod, apiKey), showLimitUsage, proxy);
+        logger.debug("{} {} response is {} - {} millis", httpMethod, fullUrl, response, System.currentTimeMillis() - currentTime);
+        return response;
     }
 }
